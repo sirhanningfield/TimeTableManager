@@ -19,7 +19,7 @@
 					<th></th>
 				</thead>
 				<tbody>
-				@foreach($courses_taken as $course)
+				@foreach($courses as $course)
 					<tr>
 						<th>{{$course->id}}</th>
 						<td>{{$course->coursecode}}</td>

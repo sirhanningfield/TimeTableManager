@@ -39,3 +39,15 @@ Route::resource('allcourses','AllCoursesController');
 Route::get('timetable',[
 	'as'=>'timetable',
 	'uses'=>'CourseTakenController@getTimetable']);
+//Single student timetable:
+Route::get('studenttimetable/{id}',[
+	'as'=>'student.timetable',
+	'uses'=>'TimetableController@getSingleTable']);
+
+
+
+//authentication routes:
+Auth::routes();
+Route::get('/home', 'HomeController@index');
+
+

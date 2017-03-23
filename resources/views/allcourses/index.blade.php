@@ -4,7 +4,9 @@
 
 @section('content')
 	<div class="row">
+	@if(!Auth::guest())<h1 class="text-center">Welcome {{ Auth::user()->name }}</h1><br>@endif
 		<div class="col-md-10 col-md-offset-1">
+			
 			<h3>List of available courses:</h3>
 			
 			<table class="table">
@@ -69,11 +71,11 @@
 						<td>{{$course->days}}</td>
 						<td>{{$course->status}}</td>
 						<td>
-							<form action="" method= DELETE>
-								{{ csrf_field() }}
-								<input type="submit" name="delete" value="Delete" class="btn btn-danger">
+							{!! Form::open(['route'=>['course.delete', $course->id],'method'=>'DELETE']) !!}
 
-							</form>
+									{{Form::submit('Delete',['class'=>'btn btn-danger btn-block btn-sm'])}}
+								
+								{!! Form::close() !!}
 						</td>
 						
 					</tr>

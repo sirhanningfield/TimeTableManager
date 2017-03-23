@@ -15,7 +15,7 @@ class CreateTakenCoursesTable extends Migration
     {
         Schema::create('taken_courses', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('coursecode')->unique();
+            $table->string('coursecode');
             $table->string('name');
             $table->integer('credits');
             $table->integer('classes');
@@ -23,6 +23,7 @@ class CreateTakenCoursesTable extends Migration
             $table->integer('end_time');
             $table->string('days');
             $table->string('status');
+            $table->integer('user_id');
             $table->timestamps();
         });
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Allcourse;
 use App\TakenCourse;
 use Session;
@@ -22,14 +23,14 @@ class CourseTakenController extends Controller
     	$attemted_course = Allcourse::find($id);
 
     	// Check database for any courses
-    	//Check if database table is empty or not i.e there are no previous courses added:
-    	$courses_taken = TakenCourse::orderBy('id')->get(); 
+    	// Check if database table is empty or not i.e there are no previous courses added:
+    	$courses_taken = TakenCourse::where('user_id','=', Auth::id())->get(); 
 
     	
 
     	// if no previously added courses then simply add the course:
     	if ($courses_taken->count()==0) {
-    		# code...
+    		
 	    	$course_taken = new TakenCourse;
 	        $course_taken->coursecode = $attemted_course->coursecode;
 	        $course_taken->name = $attemted_course->name;
@@ -39,17 +40,11 @@ class CourseTakenController extends Controller
 	        $course_taken->end_time = $attemted_course->end_time;
 	        $course_taken->days = $attemted_course->days;
 	        $course_taken->status = $attemted_course->status;
+	        $course_taken->user_id = Auth::id();
 
 	        $course_taken->save();
 
 
-
-	        //set the credits taken in a session
-	        Session::flush();
-	        Session::put('total_credits', $course_taken->credits);
-	        
-	        $total_credits = Session::get('total_credits');
-	        //dd($total_credits);
 
 	        //Flash a success message
 	        Session::flash('Success','Course successfully added !');
@@ -62,7 +57,7 @@ class CourseTakenController extends Controller
 
     		//If there are courses already taken by the studnet then check if there are other courses that have the same days as the course he/she is trying to take:
 
-    		$courses_with_same_day = TakenCourse::where('days','=',$attemted_course->days)->get();
+    		$courses_with_same_day = TakenCourse::where('days','=',$attemted_course->days)->where('user_id','=', Auth::id())->get();
 
     		//Check if there are any courses have the same days as the attempted course:
 
@@ -78,6 +73,7 @@ class CourseTakenController extends Controller
 		        $course_taken->end_time = $attemted_course->end_time;
 		        $course_taken->days = $attemted_course->days;
 		        $course_taken->status = $attemted_course->status;
+		        $course_taken->user_id = Auth::id();
 
 		        $course_taken->save();
 
@@ -85,10 +81,6 @@ class CourseTakenController extends Controller
 		        $total_credits1 = Session::get('total_credits');
 		      	$total_credits2 = $course_taken->credits;
 		        
-		        //dd($total_credits2);
-
-		        Session::put('total_credits', $total_credits2);
-
 		       
 
 		        
@@ -130,6 +122,7 @@ class CourseTakenController extends Controller
 		        $course_taken->end_time = $attemted_course->end_time;
 		        $course_taken->days = $attemted_course->days;
 		        $course_taken->status = $attemted_course->status;
+		        $course_taken->user_id = Auth::id();
 
 		        $course_taken->save();
 
@@ -150,17 +143,24 @@ class CourseTakenController extends Controller
     	// Check first if the courses taken have the compulsory courses in them:
 
 
-    	$C_courses_taken = TakenCourse::where('status','=','C')->get(); //load all courses
+    	$courses_taken = TakenCourse::where('user_id','=', Auth::id())->where('status','=','C')->get(); //load all courses
     	
     	//if both courses are not present:
-    	if($C_courses_taken->count()<2){
+    	if($courses_taken->count()<2){
     		Session::flash('Warning','U have not taken both of your compulsory courses');
     		return redirect()->back();
     	}else{
 
-    		$courses_taken = TakenCourse::orderBy('id')->get();
+    		$total_credits = 0;
+    		$courses_taken = TakenCourse::where('user_id','=', Auth::id())->get();
 
-    		return view('timetable.timetable')->withCourses_taken($courses_taken);
+    		foreach ($courses_taken as $course) {
+            # code...
+            $total_credits = $total_credits + $course->credits;
+        	
+        	}
+
+    		return view('timetable.timetable')->withCourses_taken($courses_taken)->withTotal_credits($total_credits);
     	}
 
     }
@@ -168,6 +168,17 @@ class CourseTakenController extends Controller
     public function delete($id)
     {
     	# code...
+    	//Find the course to be deleted:
+    	$course_to_delete = TakenCourse::find($id);
+
+    	// delete the course:
+    	$course_to_delete->delete();
+
+    	//Give a success message:
+    	Session::flash('Success','Course ""'.$course_to_delete->name.'"" was deleted succesfully');
+
+    	 return redirect()->route('allcourses.index');
+    			
     }
 
 

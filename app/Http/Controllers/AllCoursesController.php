@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Allcourse;
 use App\TakenCourse;
 use Session;
@@ -14,14 +15,22 @@ class AllCoursesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => 'logout']);
+    }
+
     public function index()
     {
+
+        
         $total_credits = 0;
         //Extract all courses from database
         $courses = Allcourse::orderBy('id')->get();
-
+        $user_id = Auth::user()->id;
         //Get taken courses:
-        $course_taken = TakenCourse::orderBy('id')->get();
+        $course_taken = TakenCourse::where('user_id','=',Auth::id())->get();
 
         foreach ($course_taken as $course) {
             # code...

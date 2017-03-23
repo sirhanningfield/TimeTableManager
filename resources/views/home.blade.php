@@ -10,6 +10,13 @@
             <p></p>
             <p class="lead">Please <a href="{{url('/register')}}">Register</a> or <a href="{{url('/login')}}">Login</a> here</p>
           </div>
+          <div class="lead">
+          	view Existing Tables:<br>
+          </div>
+          @foreach($students as $student)
+				<a href="{{ route('student.timetable',$student->id) }}">TimeTable for {{$student->name}}</a><br>
+          @endforeach	
+          
         </div> 
       </div> <!--end of .row-->
 @endsection
